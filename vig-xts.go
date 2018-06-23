@@ -1,72 +1,143 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"os"
-	"unicode"
+  "fmt"
+  "log"
+  "os"
+  "bufio"
+  "github.com/urfave/cli"
+  "bytes"
+//  "strings"
 )
+/*
+ * This program accepts anything from ASCII 31 to 127 (95 characters)
+ */
 
 func main() {
-	lowerBound := 33 // These values are both inclusive
-	upperBound := 126
-	// Getting input and turning it into a slice
-	plaintext, key := getInput()
+  app := cli.NewApp()
+  app.Name = "Vig-xts"
+  app.Usage = "Use xts with the Vigenere cipher"
+  app.Action = func(c *cli.Context) error {
+    encrypt()
+    return nil
+  }
+  
+  app.Commands = []cli.Command{
+    {
+      Name:    "encrypt",
+      Aliases: []string{"e"},
+      Usage:   "Encrypt text",
+      Action:  func(c *cli.Context) error {
+        encrypt()
+        return nil
+      },
+    },
+    {
+      Name:    "decrypt",
+      Aliases: []string{"d"},
+      Usage:   "Decrypt text",
+      Action:  func(c *cli.Context) error {
+        decrypt()
+        return nil
+      },
+    },
+   }
 
-	plaintextSlice := turnSlice(plaintext, lowerBound, upperBound)
-	keySlice := turnSlice(key, lowerBound, upperBound)
-
-	encryptSlice := encrypt(plaintextSlice, keySlice, lowerBound, upperBound)
-	ciphertext := turnString(encryptSlice, lowerBound, upperBound)
-	fmt.Println(ciphertext)
+  err := app.Run(os.Args)
+  if err != nil {
+    log.Fatal(err)
+  }
 }
 
-func getInput() (plaintext string, key string) {
-	reader := bufio.NewReader(os.Stdin)
-
-	fmt.Println("Type in the text you want to encrypt")
-	plaintext, _ = reader.ReadString('\n')
-
-	fmt.Println("Type in your key")
-	key, _ = reader.ReadString('\n')
-	return
+func encrypt() {
+    fmt.Println("Encrypting")
+    plaintext, key := getInput()
+    
+    plaintextArray := turnASCII(plaintext)
+    fmt.Println(plaintextArray)
+    keyArray := turnASCII(key)
+    
+    encryptedArray := addMod(plaintextArray, keyArray) 
+    ciphertext := turnString(encryptedArray)
+    fmt.Println(encryptedArray) //debug
+    
+    fmt.Println(ciphertext)
+    
 }
 
-func turnSlice(input string, lowerBound int, upperBound int) []int {
-	var plaintextSlice []int
-	var num int
+func decrypt() {
+    fmt.Println("Decrypting")
+    ciphertext, key := getInput()
 
-	for pos, char := range input {
-		if !unicode.IsLetter(char) && !unicode.IsNumber(char) {
-			continue
-		}
-		num = int([]rune(input)[pos])
-		if lowerBound <= num && upperBound >= num {
-			plaintextSlice = append(plaintextSlice, num-lowerBound) // This makes it impossible to enter anything besides basic latin
-		}
-	}
-
-	return plaintextSlice
+    ciphertextArray:= turnASCII(ciphertext)
+    keyArray := turnASCII(key)
+    
+    decryptedArray := subMod(ciphertextArray, keyArray) 
+    fmt.Println(decryptedArray) //debug
+    
+    plaintext := turnString(decryptedArray)
+    fmt.Println(plaintext)
 }
 
-func turnString(input []int, lowerBound int, upperBound int) string {
-	output := make([]rune, 0, len(input))
-	for _, i := range input {
-		output = append(output, rune(i+lowerBound))
-	}
-	return string(output)
+func addMod(text []int, key []int,) (output []int) {
+    output = make([]int,0)
+    fmt.Println("Adding your numbers")
+    for count, letter := range text {
+        pos := count%len(key)
+        result := letter+key[pos]
+        output = append(output,result%128)
+    }
+    return
 }
 
-func encrypt(plaintextSlice []int, keySlice []int, lowerBound int, upperBound int) (encryptSlice []int) {
-	var encryptedInt int
-	length := len(keySlice)
-	mod := upperBound - lowerBound
+func subMod(text []int, key []int,) (output []int) {
+    output = make([]int,0)
+    fmt.Println("Subtracting your numbers")
+    for count, letter := range text {
+        pos := count%len(key)
+        result := letter-key[pos]+128
+        
+        // This makes sure mod is always positive, but I think the +128 in the line above fixes that
+        resultMod := ((result % 128) + 128) % 128
+        output = append(output,resultMod)
+    }
+    return
+}
 
-	for pos := range plaintextSlice {
-		key := keySlice[pos%length]
-		encryptedInt = (key + pos + encryptedInt) % mod
+func ASCII(r rune) int {
+    return int(r)
+}
 
-		encryptSlice = append(encryptSlice, encryptedInt)
-	}
-	return
+func turnASCII(text string) (slice []int) {
+    slice = make([]int,0)
+    for _, char := range text {
+        num := ASCII(char)
+//        fmt.Println(num)
+        if num != 0 {
+            slice = append(slice, num)
+        }
+    }
+    return slice
+}
+
+func turnString(slice []int) (text string) {
+    var buffer bytes.Buffer
+    for _, char := range slice {
+        character := string(char)
+        buffer.WriteString(character)
+    }
+    return buffer.String()
+}
+
+func getInput() (text string, key string) {
+    reader := bufio.NewReader(os.Stdin)
+    
+    fmt.Println("Type in the text you want to encrypt/decrypt")
+    text, _ = reader.ReadString('\n')
+//    text = strings.TrimSpace(text)
+    
+    fmt.Println("Type in your key")
+    key, _ = reader.ReadString('\n')
+//    key = strings.TrimSpace(key)
+    return
 }
