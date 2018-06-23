@@ -85,7 +85,7 @@ func addMod(text []int, key []int,) (output []int) {
     for count, letter := range text {
         pos := count%len(key)
         result := letter+key[pos]
-        output = append(output,result%128)
+        output = append(output,result%95)
     }
     return
 }
@@ -95,27 +95,29 @@ func subMod(text []int, key []int,) (output []int) {
     fmt.Println("Subtracting your numbers")
     for count, letter := range text {
         pos := count%len(key)
-        result := letter-key[pos]+128
+        result := letter-key[pos]+95
         
-        // This makes sure mod is always positive, but I think the +128 in the line above fixes that
-        resultMod := ((result % 128) + 128) % 128
+        // This makes sure mod is always positive, but I think the +95 in the line above fixes that
+        resultMod := ((result % 95) + 95) % 95
         output = append(output,resultMod)
     }
     return
 }
 
 func ASCII(r rune) int {
-    return int(r)
+    num := int(r)
+    if num > 31 {   
+        return num-32   
+    } else {
+        return 0
+    }
 }
 
 func turnASCII(text string) (slice []int) {
     slice = make([]int,0)
     for _, char := range text {
         num := ASCII(char)
-//        fmt.Println(num)
-        if num != 0 {
-            slice = append(slice, num)
-        }
+        slice = append(slice, num)
     }
     return slice
 }
@@ -123,7 +125,7 @@ func turnASCII(text string) (slice []int) {
 func turnString(slice []int) (text string) {
     var buffer bytes.Buffer
     for _, char := range slice {
-        character := string(char)
+        character := string(char+32)
         buffer.WriteString(character)
     }
     return buffer.String()
@@ -134,10 +136,10 @@ func getInput() (text string, key string) {
     
     fmt.Println("Type in the text you want to encrypt/decrypt")
     text, _ = reader.ReadString('\n')
-//    text = strings.TrimSpace(text)
+    text = text[:len(text)-1]
     
     fmt.Println("Type in your key")
     key, _ = reader.ReadString('\n')
-//    key = strings.TrimSpace(key)
+    key = key[:len(key)-1]
     return
 }
