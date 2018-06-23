@@ -7,11 +7,7 @@ import (
   "bufio"
   "github.com/urfave/cli"
   "bytes"
-//  "strings"
 )
-/*
- * This program accepts anything from ASCII 31 to 127 (95 characters)
- */
 
 func main() {
   app := cli.NewApp()
