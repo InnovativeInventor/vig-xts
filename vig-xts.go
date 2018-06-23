@@ -17,10 +17,7 @@ func main() {
   app := cli.NewApp()
   app.Name = "Vig-xts"
   app.Usage = "Use xts with the Vigenere cipher"
-  app.Action = func(c *cli.Context) error {
-    encrypt()
-    return nil
-  }
+  app.Version = "0.1.2"
   
   app.Commands = []cli.Command{
     {
