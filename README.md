@@ -1,10 +1,10 @@
 # vig-xts
-An implementation of the Vigenere cipher with ciphertext stealing in Go
+An implementation of the Vigenere cipher with ciphertext stealing in Go (Golang).
 
 # Running
 To compile and run, type
 ```
-go run vigXts.go
+go run vig-xts.go
 ```
 To run the precompiled binaries, go to `bin/` and execute the binary appropriate for your platform.
 

@@ -54,12 +54,10 @@ func encrypt() {
     plaintext, key := getInput()
     
     plaintextArray := turnASCII(plaintext)
-    fmt.Println(plaintextArray)
     keyArray := turnASCII(key)
     
     encryptedArray := addMod(plaintextArray, keyArray) 
     ciphertext := turnString(encryptedArray)
-    fmt.Println(encryptedArray) //debug
     
     fmt.Println(ciphertext)
     
@@ -73,7 +71,6 @@ func decrypt() {
     keyArray := turnASCII(key)
     
     decryptedArray := subMod(ciphertextArray, keyArray) 
-    fmt.Println(decryptedArray) //debug
     
     plaintext := turnString(decryptedArray)
     fmt.Println(plaintext)
@@ -84,8 +81,15 @@ func addMod(text []int, key []int,) (output []int) {
     fmt.Println("Adding your numbers")
     for count, letter := range text {
         pos := count%len(key)
-        result := letter+key[pos]
-        output = append(output,result%95)
+        
+        if count == 0 {
+            result := letter+key[pos]
+            output = append(output,result%95)
+        } else {
+            result := letter+output[count-1]+key[pos]
+            output = append(output,result%95)
+        }
+
     }
     return
 }
@@ -95,11 +99,17 @@ func subMod(text []int, key []int,) (output []int) {
     fmt.Println("Subtracting your numbers")
     for count, letter := range text {
         pos := count%len(key)
-        result := letter-key[pos]+95
         
-        // This makes sure mod is always positive, but I think the +95 in the line above fixes that
-        resultMod := ((result % 95) + 95) % 95
-        output = append(output,resultMod)
+        if count == 0 {
+            result := letter-key[pos]+95
+            resultMod := ((result % 95) + 95) % 95
+            output = append(output,resultMod)
+        } else {
+            result := letter-key[pos]-text[count-1]+95+95
+            resultMod := ((result % 95) + 95) % 95
+            output = append(output,resultMod)
+        }
+
     }
     return
 }
