@@ -14,14 +14,15 @@ func main() {
   app.Name = "Vig-xts"
   app.Usage = "Use xts with the Vigenere cipher"
   app.Version = "0.1.2"
-  
   app.Commands = []cli.Command{
     {
       Name:    "encrypt",
       Aliases: []string{"e"},
       Usage:   "Encrypt text",
       Action:  func(c *cli.Context) error {
-        encrypt()
+        text, key := getInput()
+        ciphertext := Encrypt(text,key)
+        fmt.Println(ciphertext)
         return nil
       },
     },
@@ -30,7 +31,9 @@ func main() {
       Aliases: []string{"d"},
       Usage:   "Decrypt text",
       Action:  func(c *cli.Context) error {
-        decrypt()
+        text, key := getInput()
+        plaintext := Decrypt(text,key)
+        fmt.Println(plaintext)
         return nil
       },
     },
@@ -42,36 +45,27 @@ func main() {
   }
 }
 
-func encrypt() {
-    fmt.Println("Encrypting")
-    plaintext, key := getInput()
-    
+func Encrypt(plaintext string ,key string) (ciphertext string) {
     plaintextArray := turnASCII(plaintext)
     keyArray := turnASCII(key)
     
     encryptedArray := addMod(plaintextArray, keyArray) 
-    ciphertext := turnString(encryptedArray)
-    
-    fmt.Println(ciphertext)
-    
+    ciphertext = turnString(encryptedArray)
+    return ciphertext
 }
 
-func decrypt() {
-    fmt.Println("Decrypting")
-    ciphertext, key := getInput()
-
+func Decrypt(ciphertext string, key string) (plaintext string) {
     ciphertextArray:= turnASCII(ciphertext)
     keyArray := turnASCII(key)
     
     decryptedArray := subMod(ciphertextArray, keyArray) 
-    
-    plaintext := turnString(decryptedArray)
-    fmt.Println(plaintext)
+    plaintext = turnString(decryptedArray)
+    return plaintext
 }
 
 func addMod(text []int, key []int,) (output []int) {
+    // Adds the numbers in the array, mod 95
     output = make([]int,0)
-    fmt.Println("Adding your numbers")
     for count, letter := range text {
         pos := count%len(key)
         
@@ -84,12 +78,12 @@ func addMod(text []int, key []int,) (output []int) {
         }
 
     }
-    return
+    return output
 }
 
 func subMod(text []int, key []int,) (output []int) {
+    // Subtracts the numbers in the array, mod 95
     output = make([]int,0)
-    fmt.Println("Subtracting your numbers")
     for count, letter := range text {
         pos := count%len(key)
         
@@ -104,7 +98,7 @@ func subMod(text []int, key []int,) (output []int) {
         }
 
     }
-    return
+    return output
 }
 
 func ASCII(r rune) int {
@@ -144,5 +138,5 @@ func getInput() (text string, key string) {
     fmt.Println("Type in your key")
     key, _ = reader.ReadString('\n')
     key = key[:len(key)-1]
-    return
+    return text, key
 }
