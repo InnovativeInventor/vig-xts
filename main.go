@@ -13,7 +13,7 @@ func main() {
   app := cli.NewApp()
   app.Name = "Vig-xts"
   app.Usage = "Use xts with the Vigenere cipher"
-  app.Version = "0.1.2"
+  app.Version = "0.1.5"
   app.Commands = []cli.Command{
     {
       Name:    "encrypt",
