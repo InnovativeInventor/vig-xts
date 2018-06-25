@@ -24,7 +24,7 @@ USAGE:
    main [global options] command [command options] [arguments...]
 
 VERSION:
-   0.1.5
+   0.1.6
 
 COMMANDS:
      encrypt, e  Encrypt text
